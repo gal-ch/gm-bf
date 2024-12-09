@@ -1,0 +1,9 @@
+:root {
+    --action-color: #e0e0e0;
+    --text-color: #303030;
+    --border-color: #a9a9a9;
+    --card-background: #a1ada820;
+    --disabled-background: #a9a9a9;
+    --button-padding: 8px 16px;
+    --font-size-large: 1.2em;
+  }
