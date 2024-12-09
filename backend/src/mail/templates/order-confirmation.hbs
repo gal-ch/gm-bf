@@ -1,0 +1,9 @@
+<h1>Your Order is Confirmed!</h1>
+<p>Thank you for your order, {{clientName}}.</p>
+<p>Order Details:</p>
+<ul>
+  {{#each details}}
+    <li>{{this.productName}} - {{this.amount}} x {{this.price}} ILS</li>
+  {{/each}}
+</ul>
+<p>Total: {{totalPrice}} ILS</p>
