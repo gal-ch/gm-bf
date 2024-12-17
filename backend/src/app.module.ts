@@ -77,7 +77,8 @@ import { AppService } from 'app.service';
       entities: [User, Product, Account, Order, Store],
       logging: true,
       synchronize: true,
-      
+      ssl: { rejectUnauthorized: false },
+
     }),
     TypeOrmModule.forFeature([User, Product, Account, Store, Order]),
 
@@ -110,5 +111,5 @@ import { AppService } from 'app.service';
 })
 
 
-export class AppModule {}
+export class AppModule { }
 
