@@ -31,6 +31,6 @@ export class Account {
   @Column({ nullable: true })
   creditApiKey: string;
 
-  @Column()
+  @Column({ default: 'dodo' })
   siteUrl: string
 }

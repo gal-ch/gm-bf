@@ -17,7 +17,7 @@ export class OrderService {
     private readonly accountService: AccountService,
     private paymentService: PaymentService,
     private readonly mailService: MailService,
-  ) {}
+  ) { }
 
   async create(orderDetails, cardDetails) {
     try {
@@ -81,9 +81,10 @@ export class OrderService {
 
       await this.orderRepository.save(order);
       let totalPrice = 0;
-      orderDetails.details?.forEach(
-        (item) => (totalPrice += item.product.price * item.quantity),
-      );
+      orderDetails.details?.forEach((item) => {
+        totalPrice += item.price * item.amount;
+        item.total = item.amount * item.price;
+      });
 
       const htmlContent = this.getOrderConfirmationHtml(
         orderDetails.clientName,
@@ -105,15 +106,32 @@ export class OrderService {
 
   getOrderConfirmationHtml(clientName: string, details, totalPrice) {
     const source = `
-      <h3>ההזמנה שלך אושרה!</h3>
-      <p>תודה שקנית אצלנו, {{clientName}}.</p>
-      <p>מצורף פירוט המוצרים:</p>
-      <ul>
-        {{#each details}}
-          <li>{{this.product.productName}} - {{this.product.amount}} x {{this.product.price}} ILS</li>
-        {{/each}}
-      </ul>
-      <p>סך הכל: {{totalPrice}} ILS</p>
+<h3>ההזמנה שלך אושרה!</h3>
+<p>תודה שקנית אצלנו, {{clientName}}.</p>
+<p>מצורף פירוט המוצרים:</p>
+<table style="width: 100%; border-collapse: collapse; text-align: right;">
+  <thead>
+    <tr>
+      <th style="border: 1px solid #ddd; padding: 8px;">סך הכל (ILS)</th>
+      <th style="border: 1px solid #ddd; padding: 8px;">כמות</th>
+      <th style="border: 1px solid #ddd; padding: 8px;">מחיר ליחידה (ILS)</th>
+      <th style="border: 1px solid #ddd; padding: 8px;">שם המוצר</th>
+
+    </tr>
+  </thead>
+  <tbody>
+    {{#each details}}
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">{{this.total}}</td>
+      <td style="border: 1px solid #ddd; padding: 8px;">{{this.amount}}</td>
+      <td style="border: 1px solid #ddd; padding: 8px;">{{this.price}}</td>
+      <td style="border: 1px solid #ddd; padding: 8px;">{{this.productName}}</td>
+
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+<p><strong>סך הכל:</strong> {{totalPrice}} ILS</p>
     `;
 
     const template = Handlebars.compile(source);
@@ -166,10 +184,10 @@ export class OrderService {
     const filteredOrders =
       filters?.products && filters.products.length
         ? orders.filter((order) =>
-            order.details.some((detail) =>
-              filters.products.includes(detail.productId),
-            ),
-          )
+          order.details.some((detail) =>
+            filters.products.includes(detail.productId),
+          ),
+        )
         : orders;
 
     return filteredOrders;
