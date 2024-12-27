@@ -88,7 +88,7 @@ function preperExcelTab(
         name: col.label,
       })),
       rows: table.detailsTable.rows.map((row) =>
-        table.detailsTable.columnDefinition.map((col) => row[col.value]),
+        table.detailsTable.columnDefinition.map((col) => row[col.value] || 0),
       ),
       style: { numFmt: '' },
     });

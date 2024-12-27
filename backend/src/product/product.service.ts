@@ -82,7 +82,7 @@ export class ProductService {
     }
     if (file) {
       updateProductDto.image = await this.uploadService.uploadImageToS3(file);
-    }
+    }    
     const disabledStoresIds = Array.isArray(updateProductDto.disabledStoresIds)
       ? updateProductDto.disabledStoresIds
       : JSON.parse(updateProductDto?.disabledStoresIds || '[]');
@@ -90,6 +90,7 @@ export class ProductService {
     Object.assign(product, {
       ...updateProductDto,
       disabledStoresIds,
+      status: updateProductDto.status
     });
     return this.productRepository.save(product);
   }

@@ -41,9 +41,10 @@ export class AccountController {
     return await this.accountService.findPartialOneByUrl(data.accountUrl);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
-    return this.accountService.update(+id, updateAccountDto);
+  update(@Req() req: any, @Body() updateAccountDto: UpdateAccountDto) {
+   // return this.accountService.update(+id, updateAccountDto);
   }
 
   @Delete(':id')

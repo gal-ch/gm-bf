@@ -24,4 +24,6 @@ export class CreateProductDto {
   @IsOptional()
   disabledStoresIds?: number[];
 
+  description: string
+
 }

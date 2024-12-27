@@ -31,4 +31,9 @@ export class Product {
 
   @Column('int', { array: true, default: [] })
   disabledStoresIds: number[];
+
+  @Column({ nullable: true })
+  description: string;
+
+
 }

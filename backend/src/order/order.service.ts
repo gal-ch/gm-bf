@@ -90,6 +90,7 @@ export class OrderService {
         orderDetails.clientName,
         orderDetails.details,
         totalPrice,
+
       );
       await this.mailService.sendOrderConfirmation({
         account,
@@ -100,11 +101,11 @@ export class OrderService {
       });
       return paymentResponse;
     } catch (e) {
-      console.log(e);
     }
   }
 
   getOrderConfirmationHtml(clientName: string, details, totalPrice) {
+    const totalProducts = details.length
     const source = `
 <h3>ההזמנה שלך אושרה!</h3>
 <p>תודה שקנית אצלנו, {{clientName}}.</p>
@@ -116,6 +117,8 @@ export class OrderService {
       <th style="border: 1px solid #ddd; padding: 8px;">כמות</th>
       <th style="border: 1px solid #ddd; padding: 8px;">מחיר ליחידה (ILS)</th>
       <th style="border: 1px solid #ddd; padding: 8px;">שם המוצר</th>
+      <th style="border: 1px solid #ddd; padding: 8px;">תיאור</th>
+
 
     </tr>
   </thead>
@@ -126,16 +129,18 @@ export class OrderService {
       <td style="border: 1px solid #ddd; padding: 8px;">{{this.amount}}</td>
       <td style="border: 1px solid #ddd; padding: 8px;">{{this.price}}</td>
       <td style="border: 1px solid #ddd; padding: 8px;">{{this.productName}}</td>
+      <td style="border: 1px solid #ddd; padding: 8px;">{{this.description}}</td>
 
     </tr>
     {{/each}}
   </tbody>
 </table>
+<p><strong>סך המוצרים:</strong> {{totalProducts}} ILS</p>
 <p><strong>סך הכל:</strong> {{totalPrice}} ILS</p>
     `;
 
     const template = Handlebars.compile(source);
-    return template({ clientName, details, totalPrice });
+    return template({ clientName, details, totalPrice, totalProducts });
   }
 
   async findAll({
@@ -181,14 +186,14 @@ export class OrderService {
       };
     }
     const orders = await this.orderRepository.find(queryOptions);
-    const filteredOrders =
-      filters?.products && filters.products.length
-        ? orders.filter((order) =>
-          order.details.some((detail) =>
-            filters.products.includes(detail.productId),
-          ),
-        )
-        : orders;
+    const filteredOrders = filters?.products && filters.products.length
+      ? orders.map((order) => ({
+        ...order,
+        details: order.details.filter((detail) =>
+          filters.products.includes(detail.productId)
+        ),
+      }))
+      : orders;
 
     return filteredOrders;
   }
@@ -228,9 +233,11 @@ export class OrderService {
       orders.forEach((order) => {
         order.details.forEach((detail) => {
           if (productPickupMap[detail.productName]) {
-            productPickupMap[detail.productName] += detail.amount;
+            productPickupMap[detail.productName] += detail.amount || 0;
           } else {
-            productPickupMap[detail.productName] = detail.amount;
+            console.log(detail.amount ,'detail.amount ');
+            
+            productPickupMap[detail.productName] = detail.amount || 0;
           }
         });
       });
@@ -275,13 +282,13 @@ export class OrderService {
       });
       columnDefinition.push(...productsColumns, {
         value: 'total',
-        label: 'סה"כ',
+        label: 'לתשלום סה"כ',
         name: 'total',
       });
       const rows = orders.map((order) => {
         let total = 0;
-        const products = order.details.reduce((acc, product) => {
-          acc[product.productName] = product.amount;
+        const products = order.details.reduce((acc, product) => {          
+          acc[product.productName] = product.amount || 0;
           total += acc[product.productName] * product.price;
           return acc;
         }, {});
@@ -292,10 +299,22 @@ export class OrderService {
           total,
         };
       });
+      
+      const totals = {client: 'total',phone: '-' };
+
+      rows.forEach(row => {
+        Object.entries(row).forEach(([key, value]) => {
+          if (typeof value === 'number') {
+            totals[key] = (totals[key] || 0) + value;
+          }
+        });
+      });    
+      console.log(totals, 'rows');
+      
       tables.push({
         detailsTable: {
           columnDefinition,
-          rows,
+          rows: [...rows,totals],
         },
       });
     } catch (e) {
