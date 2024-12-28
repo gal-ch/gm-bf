@@ -23,7 +23,7 @@ export class ProductService {
     private readonly accountService: AccountService,
     @InjectRepository(Store)
     private readonly storeRepository: Repository<Store>,
-  ) {}
+  ) { }
 
   async findAll(accountUrl: string): Promise<Product[]> {
     const account: Account =
@@ -41,7 +41,7 @@ export class ProductService {
     productDto: CreateProductDto,
     file: Express.Multer.File,
     req: any,
-  ): Promise<Product> { 
+  ): Promise<Product> {
     let imageUrl = '';
     if (file) {
       imageUrl = await this.uploadService.uploadImageToS3(file);
@@ -82,7 +82,7 @@ export class ProductService {
     }
     if (file) {
       updateProductDto.image = await this.uploadService.uploadImageToS3(file);
-    }    
+    }
     const disabledStoresIds = Array.isArray(updateProductDto.disabledStoresIds)
       ? updateProductDto.disabledStoresIds
       : JSON.parse(updateProductDto?.disabledStoresIds || '[]');
@@ -90,7 +90,7 @@ export class ProductService {
     Object.assign(product, {
       ...updateProductDto,
       disabledStoresIds,
-      status: updateProductDto.status
+      status: Boolean(updateProductDto.status)
     });
     return this.productRepository.save(product);
   }

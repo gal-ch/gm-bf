@@ -2,7 +2,9 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "*": ["*"]
+      "*": [
+        "*"
+      ]
     },
     "declaration": true,
     "removeComments": true,
@@ -17,7 +19,10 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "target": "es6",
-    "lib": ["dom", "es2017"],
+    "lib": [
+      "dom",
+      "es2017"
+    ],
     "allowJs": true,
     "jsx": "react",
     "module": "commonjs",
@@ -25,9 +30,17 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true,
   },
-  "include": ["src"]
-
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+  "include": [
+    "src/**/*.ts"
+  ]
 }
-
